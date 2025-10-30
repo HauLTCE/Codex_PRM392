@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.hault.codex"
+    namespace = "com.username.codex"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.hault.codex"
+        applicationId = "com.username.codex"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
 
     implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
     kapt(libs.hilt.compiler)
 
     implementation(libs.room.runtime)
