@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class DatabaseTest {
+open class DatabaseTest {
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -25,12 +25,12 @@ class DatabaseTest {
     lateinit var worldDao: WorldDao
 
     @Before
-    fun setUp() {
+    open fun setUp() {
         hiltRule.inject()
     }
 
     @Test
-    fun insertWorldAndReadIt() = runBlocking {
+    open fun insertWorldAndReadIt() = runBlocking {
         val world = World(name = "Test World", description = "A world for testing")
         worldDao.insert(world)
 
