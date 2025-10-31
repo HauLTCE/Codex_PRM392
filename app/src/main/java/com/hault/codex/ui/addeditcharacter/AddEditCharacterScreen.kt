@@ -35,45 +35,47 @@ fun AddEditCharacterScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Add/Edit Character") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.ArrowBack, "Back")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        viewModel.saveCharacter()
-                        navController.popBackStack()
-                    }) {
-                        Icon(Icons.Filled.Check, "Save Character")
+                        TopAppBar(
+                            title = { Text("Create/Edit Character") },
+                            navigationIcon = {
+                                IconButton(onClick = { navController.popBackStack() }) {
+                                    Icon(Icons.Filled.ArrowBack, "Back")
+                                }
+                            },
+                            actions = {
+                                IconButton(onClick = {
+                                    viewModel.saveCharacter()
+                                    navController.popBackStack()
+                                }) {
+                                    Icon(Icons.Filled.Check, "Save Character")
+                                }
+                            }
+                        )
+                    } ) { paddingValues ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(16.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = characterName,
+                            onValueChange = { viewModel.onCharacterNameChange(it) },
+                            label = { Text("Character Name") },
+                            placeholder = { Text("e.g., Gandalf") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        OutlinedTextField(
+                            value = characterBackstory,
+                            onValueChange = { viewModel.onCharacterBackstoryChange(it) },
+                            label = { Text("Character Backstory") },
+                            placeholder = { Text("Tell us about your character's past...") },
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            singleLine = false,
+                            minLines = 5
+                        )
                     }
                 }
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-        ) {
-            OutlinedTextField(
-                value = characterName,
-                onValueChange = { viewModel.onCharacterNameChange(it) },
-                label = { Text("Character Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = characterBackstory,
-                onValueChange = { viewModel.onCharacterBackstoryChange(it) },
-                label = { Text("Character Backstory") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-            )
-        }
-    }
-}
+            }

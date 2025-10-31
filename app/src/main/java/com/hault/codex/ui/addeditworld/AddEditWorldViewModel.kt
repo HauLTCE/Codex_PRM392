@@ -15,10 +15,11 @@ class AddEditWorldViewModel @Inject constructor(
 ) : ViewModel() {
 
     val worldName = MutableStateFlow("")
+    val worldDescription = MutableStateFlow("")
 
     fun saveWorld() {
         if (worldName.value.isNotBlank()) {
-            val newWorld = World(name = worldName.value, description = null)
+            val newWorld = World(name = worldName.value, description = worldDescription.value)
             viewModelScope.launch {
                 worldRepository.insert(newWorld)
             }

@@ -22,4 +22,7 @@ interface WorldDao {
 
     @Query("SELECT * FROM worlds ORDER BY name ASC")
     fun getAllWorlds(): Flow<List<World>>
+
+    @Query("SELECT * FROM worlds WHERE id = :id")
+    suspend fun getWorldById(id: Int): World?
 }

@@ -30,4 +30,8 @@ class WorldRepository @Inject constructor(private val worldDao: WorldDao) {
     // suspend fun delete(world: World) {
     //     worldDao.delete(world)
     // }
+
+    suspend fun getWorldById(id: Int): World? {
+        return worldDao.getWorldById(id)
+    }
 }

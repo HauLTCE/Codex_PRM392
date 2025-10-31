@@ -30,11 +30,12 @@ fun CharacterListScreen(
     viewModel: CharacterListViewModel = hiltViewModel()
 ) {
     val characters by viewModel.characters.collectAsState()
+    val worldName by viewModel.worldName.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Characters") }
+                title = { Text(worldName) }
             )
         },
         floatingActionButton = {
