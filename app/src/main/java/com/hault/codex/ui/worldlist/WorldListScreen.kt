@@ -1,5 +1,6 @@
 package com.hault.codex.ui.worldlist
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,7 +46,11 @@ fun WorldListScreen(
             items(worlds) { world ->
                 Text(
                     text = world.name,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .clickable {
+                            navController.navigate("character_list/${world.id}")
+                        }
                 )
             }
         }

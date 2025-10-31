@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.hault.codex.data.local.AppDatabase
 import com.hault.codex.data.local.CharacterDao
 import com.hault.codex.data.local.WorldDao
+import com.hault.codex.data.repository.CharacterRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,5 +35,11 @@ object DatabaseModule {
     @Provides
     fun provideCharacterDao(appDatabase: AppDatabase): CharacterDao {
         return appDatabase.characterDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCharacterRepository(characterDao: CharacterDao): CharacterRepository {
+        return CharacterRepository(characterDao)
     }
 }
