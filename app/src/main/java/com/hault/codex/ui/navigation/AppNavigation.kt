@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.username.codex.ui.addeditworld.AddEditWorldScreen
-import com.username.codex.ui.worldlist.WorldListScreen
+import com.hault.codex.ui.addeditworld.AddEditWorldScreen
+import com.hault.codex.ui.worldlist.WorldListScreen
 
 @Composable
 fun AppNavigation() {

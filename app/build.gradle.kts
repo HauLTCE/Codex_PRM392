@@ -7,17 +7,17 @@ plugins {
 }
 
 android {
-    namespace = "com.username.codex"
+    namespace = "com.hault.codex"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.username.codex"
+        applicationId = "com.hault.codex"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "com.username.codex.HiltTestRunner"
+        testInstrumentationRunner = "com.hault.codex.HiltTestRunner"
     }
 
     buildTypes {
