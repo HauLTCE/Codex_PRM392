@@ -18,6 +18,10 @@ class CharacterRepository @Inject constructor(
         return characterDao.getCharactersForWorld(worldId)
     }
 
+    suspend fun getCharacter(id: Int): Character? {
+        return characterDao.getCharacter(id)
+    }
+
     suspend fun update(character: Character) {
         characterDao.update(character)
     }

@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.Row
 import com.hault.codex.data.model.World
 import androidx.compose.material3.IconButton
+import com.hault.codex.ui.theme.CodexTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,94 +49,100 @@ fun WorldListScreen(
     val worlds by viewModel.worlds.collectAsState()
     var showDeleteDialog by remember { mutableStateOf<World?>(null) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("My Worlds") }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("add_edit_world?worldId=-1") }) {
-                Icon(Icons.Default.Add, contentDescription = "Add World")
-            }
-        }
-    ) { paddingValues ->
-        if (worlds.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No worlds yet. Tap the '+' button to create your first one!",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(16.dp)
+    CodexTheme {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("My Worlds") }
                 )
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = { navController.navigate("add_edit_world?worldId=-1") }) {
+                    Icon(Icons.Default.Add, contentDescription = "Add World")
+                }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.padding(paddingValues)
-            ) {
-                items(worlds) { world ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .clickable {
-                                navController.navigate("world_dashboard/${world.id}")
-                            },
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+        ) { paddingValues ->
+            if (worlds.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No worlds yet. Tap the '+' button to create your first one!",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.padding(paddingValues)
+                ) {
+                    items(worlds) { world ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .clickable {
+                                    navController.navigate("world_dashboard/${world.id}")
+                                },
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                            shape = MaterialTheme.shapes.medium
                         ) {
-                            Column {
-                                Text(
-                                    text = world.name,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                world.description?.let {
-                                    if (it.isNotBlank()) {
-                                        Text(
-                                            text = it,
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = world.name,
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                    world.description?.let {
+                                        if (it.isNotBlank()) {
+                                            Text(
+                                                text = it,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
                                     }
                                 }
-                            }
-                            IconButton(onClick = { showDeleteDialog = world }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Delete World")
+                                IconButton(onClick = { showDeleteDialog = world }) {
+                                    Icon(Icons.Filled.Delete, contentDescription = "Delete World")
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        showDeleteDialog?.let { worldToDelete ->
-            AlertDialog(
-                onDismissRequest = { showDeleteDialog = null },
-                title = { Text("Delete World") },
-                text = { Text("Are you sure you want to delete this world? This action cannot be undone.") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        viewModel.deleteWorld(worldToDelete)
-                        showDeleteDialog = null
-                    }) {
-                        Text("Confirm")
+            showDeleteDialog?.let { worldToDelete ->
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = null },
+                    title = { Text("Delete World") },
+                    text = { Text("Are you sure you want to delete this world? This action cannot be undone.") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.deleteWorld(worldToDelete)
+                            showDeleteDialog = null
+                        }) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteDialog = null }) {
+                            Text("Cancel")
+                        }
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDeleteDialog = null }) {
-                        Text("Cancel")
-                    }
-                }
-            )
+                )
+            }
         }
     }
 }

@@ -23,4 +23,7 @@ interface EventDao {
 
     @Query("SELECT * FROM events WHERE worldId = :worldId ORDER BY date")
     fun getEventsForWorld(worldId: Int): Flow<List<Event>>
+
+    @Query("SELECT * FROM events WHERE id = :id")
+    suspend fun getEvent(id: Int): Event?
 }

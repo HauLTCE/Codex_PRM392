@@ -42,6 +42,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Tab
 import com.hault.codex.ui.timeline.TimelineViewModel
+import com.hault.codex.ui.theme.CodexTheme
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,70 +58,121 @@ fun WorldDashboardScreen(
     val worldName by viewModel.worldName.collectAsState()
     val worldId = viewModel.worldId
     var showDeleteCharacterDialog by remember { mutableStateOf<Character?>(null) }
+    var showDeleteLocationDialog by remember { mutableStateOf<com.hault.codex.data.model.Location?>(null) }
+    var showDeleteEventDialog by remember { mutableStateOf<com.hault.codex.data.model.Event?>(null) }
     var tabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Characters", "Locations", "Timeline")
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(worldName) }
-            )
-        },
-        floatingActionButton = {
-            if (tabIndex == 2) {
-                FloatingActionButton(onClick = { navController.navigate("add_edit_event/${viewModel.worldId}") }) {
-                    Icon(Icons.Default.Add, "Add new event")
-                }
-            } else if (tabIndex == 0) {
-                FloatingActionButton(onClick = { navController.navigate("add_character/${viewModel.worldId}") }) {
-                    Icon(Icons.Default.Add, "Add new character")
-                }
-            } else {
-                FloatingActionButton(onClick = { navController.navigate("add_edit_location?worldId=$worldId&locationId=-1") }) {
-                    Icon(Icons.Default.Add, "Add new location")
-                }
-            }
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            TabRow(selectedTabIndex = tabIndex) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(text = { Text(title) },
-                        selected = tabIndex == index,
-                        onClick = { tabIndex = index }
-                    )
+    CodexTheme {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(worldName) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                )
+            },
+            floatingActionButton = {
+                if (tabIndex == 2) {
+                    FloatingActionButton(onClick = { navController.navigate("add_edit_event/${viewModel.worldId}") }) {
+                        Icon(Icons.Default.Add, "Add new event")
+                    }
+                } else if (tabIndex == 0) {
+                    FloatingActionButton(onClick = { navController.navigate("add_character/${viewModel.worldId}") }) {
+                        Icon(Icons.Default.Add, "Add new character")
+                    }
+                } else {
+                    FloatingActionButton(onClick = { navController.navigate("add_edit_location?worldId=$worldId&locationId=-1") }) {
+                        Icon(Icons.Default.Add, "Add new location")
+                    }
                 }
             }
-            when (tabIndex) {
-                0 -> CharactersList(characters, locations, showDeleteCharacterDialog, { showDeleteCharacterDialog = it }, { viewModel.deleteCharacter(it) })
-                1 -> LocationsList(locations)
-                2 -> TimelineList(events)
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                TabRow(selectedTabIndex = tabIndex) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(text = { Text(title) },
+                            selected = tabIndex == index,
+                            onClick = { tabIndex = index }
+                        )
+                    }
+                }
+                when (tabIndex) {
+                    0 -> CharactersList(characters, locations, { showDeleteCharacterDialog = it }, navController, worldId)
+                    1 -> LocationsList(locations, navController, worldId) { showDeleteLocationDialog = it }
+                    2 -> TimelineList(events, navController, worldId) { showDeleteEventDialog = it }
+                }
             }
-        }
 
-        showDeleteCharacterDialog?.let { characterToDelete ->
-            AlertDialog(
-                onDismissRequest = { showDeleteCharacterDialog = null },
-                title = { Text("Delete Character") },
-                text = { Text("Are you sure you want to delete ${characterToDelete.name}?") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        viewModel.deleteCharacter(characterToDelete)
-                        showDeleteCharacterDialog = null
-                    }) {
-                        Text("Confirm")
+            showDeleteCharacterDialog?.let { characterToDelete ->
+                AlertDialog(
+                    onDismissRequest = { showDeleteCharacterDialog = null },
+                    title = { Text("Delete Character") },
+                    text = { Text("Are you sure you want to delete ${characterToDelete.name}?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.deleteCharacter(characterToDelete)
+                            showDeleteCharacterDialog = null
+                        }) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteCharacterDialog = null }) {
+                            Text("Cancel")
+                        }
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDeleteCharacterDialog = null }) {
-                        Text("Cancel")
+                )
+            }
+
+            showDeleteLocationDialog?.let { locationToDelete ->
+                AlertDialog(
+                    onDismissRequest = { showDeleteLocationDialog = null },
+                    title = { Text("Delete Location") },
+                    text = { Text("Are you sure you want to delete ${locationToDelete.name}?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.deleteLocation(locationToDelete)
+                            showDeleteLocationDialog = null
+                        }) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteLocationDialog = null }) {
+                            Text("Cancel")
+                        }
                     }
-                }
-            )
+                )
+            }
+
+            showDeleteEventDialog?.let { eventToDelete ->
+                AlertDialog(
+                    onDismissRequest = { showDeleteEventDialog = null },
+                    title = { Text("Delete Event") },
+                    text = { Text("Are you sure you want to delete ${eventToDelete.name}?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            timelineViewModel.deleteEvent(eventToDelete)
+                            showDeleteEventDialog = null
+                        }) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteEventDialog = null }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -128,42 +181,60 @@ fun WorldDashboardScreen(
 fun CharactersList(
     characters: List<Character>,
     locations: List<com.hault.codex.data.model.Location>,
-    showDeleteCharacterDialog: Character?,
     setShowDeleteCharacterDialog: (Character?) -> Unit,
-    deleteCharacter: (Character) -> Unit
+    navController: NavController,
+    worldId: Int
 ) {
     if (characters.isEmpty()) {
-        Text(
-            text = "No characters found. Click the '+' button to add one.",
-            modifier = Modifier.padding(16.dp)
-        )
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "No characters found. Click the '+' button to add one.",
+                modifier = Modifier.padding(16.dp),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     } else {
         LazyColumn {
             items(characters) { character ->
-                Row(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable { navController.navigate("add_character/$worldId?characterId=${character.id}") },
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    shape = MaterialTheme.shapes.medium
                 ) {
-                    Column {
-                        Text(
-                            text = character.name,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        character.homeLocationId?.let { homeLocationId ->
-                            val locationName = locations.find { it.id == homeLocationId }?.name
-                            if (locationName != null) {
-                                Text(
-                                    text = "Home: $locationName",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = character.name,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            character.homeLocationId?.let { homeLocationId ->
+                                val locationName = locations.find { it.id == homeLocationId }?.name
+                                if (locationName != null) {
+                                    Text(
+                                        text = "Home: $locationName",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
-                    }
-                    IconButton(onClick = { setShowDeleteCharacterDialog(character) }) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Delete Character")
+                        IconButton(onClick = { setShowDeleteCharacterDialog(character) }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete Character")
+                        }
                     }
                 }
             }
@@ -172,51 +243,111 @@ fun CharactersList(
 }
 
 @Composable
-fun LocationsList(locations: List<com.hault.codex.data.model.Location>) {
+fun LocationsList(
+    locations: List<com.hault.codex.data.model.Location>,
+    navController: NavController,
+    worldId: Int,
+    setShowDeleteLocationDialog: (com.hault.codex.data.model.Location?) -> Unit
+) {
     if (locations.isEmpty()) {
-        Text(
-            text = "No locations found. Click the '+' button to add one.",
-            modifier = Modifier.padding(16.dp)
-        )
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "No locations found. Click the '+' button to add one.",
+                modifier = Modifier.padding(16.dp),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     } else {
         LazyColumn {
             items(locations) { location ->
-                Text(
-                    text = location.name,
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable { navController.navigate("add_edit_location?worldId=$worldId&locationId=${location.id}") },
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = location.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(onClick = { setShowDeleteLocationDialog(location) }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete Location")
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun TimelineList(events: List<com.hault.codex.data.model.Event>) {
+fun TimelineList(
+    events: List<com.hault.codex.data.model.Event>,
+    navController: NavController,
+    worldId: Int,
+    setShowDeleteEventDialog: (com.hault.codex.data.model.Event?) -> Unit
+) {
     if (events.isEmpty()) {
-        Text(
-            text = "No events found. Click the '+' button to add one.",
-            modifier = Modifier.padding(16.dp)
-        )
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "No events found. Click the '+' button to add one.",
+                modifier = Modifier.padding(16.dp),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     } else {
         LazyColumn {
             items(events) { event ->
-                Row(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable { navController.navigate("add_edit_event/$worldId?eventId=${event.id}") },
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    shape = MaterialTheme.shapes.medium
                 ) {
-                    Text(
-                        text = event.date,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = event.name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.weight(2f)
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = event.name,
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                            Text(
+                                text = event.date,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        IconButton(onClick = { setShowDeleteEventDialog(event) }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete Event")
+                        }
+                    }
                 }
             }
         }

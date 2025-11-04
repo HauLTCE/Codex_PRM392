@@ -19,11 +19,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import com.hault.codex.data.model.Event
+import com.hault.codex.data.repository.EventRepository
+
 @HiltViewModel
 class WorldDashboardViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
     private val worldRepository: WorldRepository,
     private val locationRepository: LocationRepository,
+    private val eventRepository: EventRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -58,6 +62,18 @@ class WorldDashboardViewModel @Inject constructor(
     fun deleteCharacter(character: Character) {
         viewModelScope.launch {
             characterRepository.delete(character)
+        }
+    }
+
+    fun deleteLocation(location: Location) {
+        viewModelScope.launch {
+            locationRepository.delete(location)
+        }
+    }
+
+    fun deleteEvent(event: Event) {
+        viewModelScope.launch {
+            eventRepository.delete(event)
         }
     }
 }

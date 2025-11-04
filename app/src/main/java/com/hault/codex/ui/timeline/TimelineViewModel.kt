@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+import com.hault.codex.data.model.Event
+import kotlinx.coroutines.launch
+
 @HiltViewModel
 class TimelineViewModel @Inject constructor(
     private val eventRepository: EventRepository,
@@ -19,4 +22,10 @@ class TimelineViewModel @Inject constructor(
 
     val events = eventRepository.getEventsForWorld(worldId)
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    fun deleteEvent(event: Event) {
+        viewModelScope.launch {
+            eventRepository.delete(event)
+        }
+    }
 }

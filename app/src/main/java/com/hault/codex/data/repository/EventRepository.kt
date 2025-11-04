@@ -9,6 +9,8 @@ class EventRepository @Inject constructor(private val eventDao: EventDao) {
 
     fun getEventsForWorld(worldId: Int): Flow<List<Event>> = eventDao.getEventsForWorld(worldId)
 
+    suspend fun getEvent(id: Int): Event? = eventDao.getEvent(id)
+
     suspend fun insert(event: Event) {
         eventDao.insert(event)
     }

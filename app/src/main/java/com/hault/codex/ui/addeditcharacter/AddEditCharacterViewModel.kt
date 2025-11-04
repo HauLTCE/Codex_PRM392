@@ -36,6 +36,20 @@ class AddEditCharacterViewModel @Inject constructor(
                 initialValue = emptyList()
             )
 
+    private val characterId: Int? = savedStateHandle.get<Int>("characterId")
+
+    init {
+        if (characterId != null) {
+            viewModelScope.launch {
+                characterRepository.getCharacter(characterId)?.let { character ->
+                    characterName.value = character.name
+                    characterBackstory.value = character.backstory ?: ""
+                    homeLocationId.value = character.homeLocationId
+                }
+            }
+        }
+    }
+
     fun onCharacterNameChange(newName: String) {
         characterName.value = newName
     }
@@ -51,12 +65,17 @@ class AddEditCharacterViewModel @Inject constructor(
     fun saveCharacter() {
         viewModelScope.launch {
             val character = Character(
+                id = characterId ?: 0,
                 name = characterName.value,
                 backstory = characterBackstory.value,
                 worldId = worldId,
                 homeLocationId = homeLocationId.value
             )
-            characterRepository.insert(character)
+            if (characterId == null) {
+                characterRepository.insert(character)
+            } else {
+                characterRepository.update(character)
+            }
         }
     }
 }

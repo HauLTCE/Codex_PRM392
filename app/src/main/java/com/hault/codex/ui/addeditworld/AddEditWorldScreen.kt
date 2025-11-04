@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.hault.codex.ui.theme.CodexTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,44 +32,52 @@ fun AddEditWorldScreen(
     val worldName by viewModel.worldName.collectAsState()
     val worldDescription by viewModel.worldDescription.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Create/Edit World") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    CodexTheme {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Create/Edit World") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
                     }
+                )
+            },
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(16.dp)
+            ) {
+                OutlinedTextField(
+                    value = worldName,
+                    onValueChange = { viewModel.worldName.value = it },
+                    label = { Text("World Name") },
+                    placeholder = { Text("e.g., Middle-earth") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.padding(8.dp))
+                OutlinedTextField(
+                    value = worldDescription,
+                    onValueChange = { viewModel.worldDescription.value = it },
+                    label = { Text("World Description") },
+                    placeholder = { Text("A brief description of your world...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = false,
+                    minLines = 5
+                )
+                Spacer(modifier = Modifier.padding(8.dp))
+                Button(
+                    onClick = {
+                        viewModel.saveWorld()
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save")
                 }
-            )
-        },
-        floatingActionButton = {
-            Button(onClick = { 
-                viewModel.saveWorld()
-                navController.popBackStack()
-            }) {
-                Text("Save")
             }
-        }
-    ) {
-        Column(modifier = Modifier.padding(it).padding(16.dp)) {
-            OutlinedTextField(
-                value = worldName,
-                onValueChange = { viewModel.worldName.value = it },
-                label = { Text("World Name") },
-                placeholder = { Text("e.g., Middle-earth") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.padding(8.dp))
-            OutlinedTextField(
-                value = worldDescription,
-                onValueChange = { viewModel.worldDescription.value = it },
-                label = { Text("World Description") },
-                placeholder = { Text("A brief description of your world...") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = false,
-                minLines = 5
-            )
         }
     }
 }

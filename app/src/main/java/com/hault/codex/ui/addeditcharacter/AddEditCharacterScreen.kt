@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -30,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.hault.codex.ui.theme.CodexTheme
+import androidx.compose.material3.Button
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,80 +45,84 @@ fun AddEditCharacterScreen(
 
     var expanded by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Create/Edit Character") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    CodexTheme {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Create/Edit Character") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
                     }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        viewModel.saveCharacter()
-                        navController.popBackStack()
-                    }) {
-                        Icon(Icons.Filled.Check, "Save Character")
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-        ) {
-            OutlinedTextField(
-                value = characterName,
-                onValueChange = { viewModel.onCharacterNameChange(it) },
-                label = { Text("Character Name") },
-                placeholder = { Text("e.g., Gandalf") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = characterBackstory,
-                onValueChange = { viewModel.onCharacterBackstoryChange(it) },
-                label = { Text("Character Backstory") },
-                placeholder = { Text("Tell us about your character's past...") },
+                )
+            }
+        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                singleLine = false,
-                minLines = 5
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp)
             ) {
                 OutlinedTextField(
-                    value = locations.find { it.id == homeLocationId }?.name ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Home Location") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
-                    modifier = Modifier
-                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                        .fillMaxWidth()
+                    value = characterName,
+                    onValueChange = { viewModel.onCharacterNameChange(it) },
+                    label = { Text("Character Name") },
+                    placeholder = { Text("e.g., Gandalf") },
+                    modifier = Modifier.fillMaxWidth()
                 )
-                ExposedDropdownMenu(
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = characterBackstory,
+                    onValueChange = { viewModel.onCharacterBackstoryChange(it) },
+                    label = { Text("Character Backstory") },
+                    placeholder = { Text("Tell us about your character's past...") },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    singleLine = false,
+                    minLines = 5
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                ExposedDropdownMenuBox(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onExpandedChange = { expanded = !expanded }
                 ) {
-                    locations.forEach { location ->
-                        DropdownMenuItem(
-                            text = { Text(location.name) },
-                            onClick = {
-                                viewModel.onHomeLocationChange(location.id)
-                                expanded = false
-                            }
-                        )
+                    OutlinedTextField(
+                        value = locations.find { it.id == homeLocationId }?.name ?: "",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Home Location") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        modifier = Modifier
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        locations.forEach { location ->
+                            DropdownMenuItem(
+                                text = { Text(location.name) },
+                                onClick = {
+                                    viewModel.onHomeLocationChange(location.id)
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        viewModel.saveCharacter()
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save Character")
                 }
             }
         }

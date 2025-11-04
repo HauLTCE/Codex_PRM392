@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.hault.codex.ui.theme.CodexTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,44 +32,52 @@ fun AddEditLocationScreen(
     val locationName by viewModel.locationName.collectAsState()
     val locationDescription by viewModel.locationDescription.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Create/Edit Location") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    CodexTheme {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Create/Edit Location") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
                     }
+                )
+            },
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(16.dp)
+            ) {
+                OutlinedTextField(
+                    value = locationName,
+                    onValueChange = { viewModel.locationName.value = it },
+                    label = { Text("Location Name") },
+                    placeholder = { Text("e.g., The Shire") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.padding(8.dp))
+                OutlinedTextField(
+                    value = locationDescription,
+                    onValueChange = { viewModel.locationDescription.value = it },
+                    label = { Text("Location Description") },
+                    placeholder = { Text("A brief description of your location...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = false,
+                    minLines = 5
+                )
+                Spacer(modifier = Modifier.padding(8.dp))
+                Button(
+                    onClick = {
+                        viewModel.saveLocation()
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save")
                 }
-            )
-        },
-        floatingActionButton = {
-            Button(onClick = { 
-                viewModel.saveLocation()
-                navController.popBackStack()
-            }) {
-                Text("Save")
             }
-        }
-    ) {
-        Column(modifier = Modifier.padding(it).padding(16.dp)) {
-            OutlinedTextField(
-                value = locationName,
-                onValueChange = { viewModel.locationName.value = it },
-                label = { Text("Location Name") },
-                placeholder = { Text("e.g., The Shire") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.padding(8.dp))
-            OutlinedTextField(
-                value = locationDescription,
-                onValueChange = { viewModel.locationDescription.value = it },
-                label = { Text("Location Description") },
-                placeholder = { Text("A brief description of your location...") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = false,
-                minLines = 5
-            )
         }
     }
 }
