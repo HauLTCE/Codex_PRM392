@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
+import androidx.room.Delete
 import com.hault.codex.data.model.Character
 import kotlinx.coroutines.flow.Flow
 
@@ -14,4 +16,10 @@ interface CharacterDao {
 
     @Query("SELECT * FROM characters WHERE worldId = :worldId")
     fun getCharactersForWorld(worldId: Int): Flow<List<Character>>
+
+    @Update
+    suspend fun update(character: Character)
+
+    @Delete
+    suspend fun delete(character: Character)
 }

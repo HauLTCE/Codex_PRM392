@@ -17,4 +17,12 @@ class CharacterRepository @Inject constructor(
     fun getCharactersForWorld(worldId: Int): Flow<List<Character>> {
         return characterDao.getCharactersForWorld(worldId)
     }
+
+    suspend fun update(character: Character) {
+        characterDao.update(character)
+    }
+
+    suspend fun delete(character: Character) {
+        characterDao.delete(character)
+    }
 }

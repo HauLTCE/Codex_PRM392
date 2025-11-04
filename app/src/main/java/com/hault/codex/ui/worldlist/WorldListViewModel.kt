@@ -8,11 +8,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class WorldListViewModel @Inject constructor(
-    worldRepository: WorldRepository
+    private val worldRepository: WorldRepository
 ) : ViewModel() {
 
     val worlds: StateFlow<List<World>> = worldRepository.allWorlds
@@ -21,4 +22,10 @@ class WorldListViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+    fun deleteWorld(world: World) {
+        viewModelScope.launch {
+            worldRepository.delete(world)
+        }
+    }
 }

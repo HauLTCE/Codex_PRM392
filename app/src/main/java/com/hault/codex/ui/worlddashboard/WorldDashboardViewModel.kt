@@ -1,10 +1,12 @@
-package com.hault.codex.ui.characterlist
+package com.hault.codex.ui.worlddashboard
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hault.codex.data.model.Character
+import com.hault.codex.data.model.Location
 import com.hault.codex.data.repository.CharacterRepository
+import com.hault.codex.data.repository.LocationRepository
 import com.hault.codex.data.repository.WorldRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -18,9 +20,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CharacterListViewModel @Inject constructor(
+class WorldDashboardViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
     private val worldRepository: WorldRepository,
+    private val locationRepository: LocationRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -43,4 +46,18 @@ class CharacterListViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
+
+    val locations: StateFlow<List<Location>> =
+        locationRepository.getLocationsForWorld(worldId)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
+    fun deleteCharacter(character: Character) {
+        viewModelScope.launch {
+            characterRepository.delete(character)
+        }
+    }
 }

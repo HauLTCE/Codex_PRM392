@@ -29,6 +29,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.Row
+import com.hault.codex.data.model.World
+import androidx.compose.material3.IconButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +46,7 @@ fun WorldListScreen(
     viewModel: WorldListViewModel = hiltViewModel()
 ) {
     val worlds by viewModel.worlds.collectAsState()
+    var showDeleteDialog by remember { mutableStateOf<World?>(null) }
 
     Scaffold(
         topBar = {
@@ -45,7 +55,7 @@ fun WorldListScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("add_world") }) {
+            FloatingActionButton(onClick = { navController.navigate("add_edit_world?worldId=-1") }) {
                 Icon(Icons.Default.Add, contentDescription = "Add World")
             }
         }
@@ -75,29 +85,57 @@ fun WorldListScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                             .clickable {
-                                navController.navigate("character_list/${world.id}")
+                                navController.navigate("world_dashboard/${world.id}")
                             },
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = world.name,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            world.description?.let {
-                                if (it.isNotBlank()) {
-                                    Text(
-                                        text = it,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
+                            Column {
+                                Text(
+                                    text = world.name,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                world.description?.let {
+                                    if (it.isNotBlank()) {
+                                        Text(
+                                            text = it,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
                                 }
+                            }
+                            IconButton(onClick = { showDeleteDialog = world }) {
+                                Icon(Icons.Filled.Delete, contentDescription = "Delete World")
                             }
                         }
                     }
                 }
             }
+        }
+
+        showDeleteDialog?.let { worldToDelete ->
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = null },
+                title = { Text("Delete World") },
+                text = { Text("Are you sure you want to delete this world? This action cannot be undone.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.deleteWorld(worldToDelete)
+                        showDeleteDialog = null
+                    }) {
+                        Text("Confirm")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = null }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }

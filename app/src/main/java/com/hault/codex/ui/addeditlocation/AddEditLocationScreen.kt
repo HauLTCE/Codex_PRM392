@@ -1,4 +1,4 @@
-package com.hault.codex.ui.addeditworld
+package com.hault.codex.ui.addeditlocation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,17 +24,17 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEditWorldScreen(
+fun AddEditLocationScreen(
     navController: NavController,
-    viewModel: AddEditWorldViewModel = hiltViewModel()
+    viewModel: AddEditLocationViewModel = hiltViewModel()
 ) {
-    val worldName by viewModel.worldName.collectAsState()
-    val worldDescription by viewModel.worldDescription.collectAsState()
+    val locationName by viewModel.locationName.collectAsState()
+    val locationDescription by viewModel.locationDescription.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Create/Edit World") },
+                title = { Text("Create/Edit Location") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -44,7 +44,7 @@ fun AddEditWorldScreen(
         },
         floatingActionButton = {
             Button(onClick = { 
-                viewModel.saveWorld()
+                viewModel.saveLocation()
                 navController.popBackStack()
             }) {
                 Text("Save")
@@ -53,18 +53,18 @@ fun AddEditWorldScreen(
     ) {
         Column(modifier = Modifier.padding(it).padding(16.dp)) {
             OutlinedTextField(
-                value = worldName,
-                onValueChange = { viewModel.worldName.value = it },
-                label = { Text("World Name") },
-                placeholder = { Text("e.g., Middle-earth") },
+                value = locationName,
+                onValueChange = { viewModel.locationName.value = it },
+                label = { Text("Location Name") },
+                placeholder = { Text("e.g., The Shire") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.padding(8.dp))
             OutlinedTextField(
-                value = worldDescription,
-                onValueChange = { viewModel.worldDescription.value = it },
-                label = { Text("World Description") },
-                placeholder = { Text("A brief description of your world...") },
+                value = locationDescription,
+                onValueChange = { viewModel.locationDescription.value = it },
+                label = { Text("Location Description") },
+                placeholder = { Text("A brief description of your location...") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = false,
                 minLines = 5

@@ -4,40 +4,57 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hault.codex.data.model.Character
+import com.hault.codex.data.model.Location
 import com.hault.codex.data.repository.CharacterRepository
+import com.hault.codex.data.repository.LocationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AddEditCharacterViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
+    private val locationRepository: LocationRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _characterName = MutableStateFlow("")
-    val characterName: StateFlow<String> = _characterName
+    private val worldId: Int = savedStateHandle.get<Int>("worldId") ?: throw IllegalStateException("worldId not found in SavedStateHandle")
 
-    private val _characterBackstory = MutableStateFlow("")
-    val characterBackstory: StateFlow<String> = _characterBackstory
+    val characterName = MutableStateFlow("")
+    val characterBackstory = MutableStateFlow("")
+    val homeLocationId = MutableStateFlow<Int?>(null)
+
+    val locations: StateFlow<List<Location>> =
+        locationRepository.getLocationsForWorld(worldId)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
     fun onCharacterNameChange(newName: String) {
-        _characterName.value = newName
+        characterName.value = newName
     }
 
     fun onCharacterBackstoryChange(newBackstory: String) {
-        _characterBackstory.value = newBackstory
+        characterBackstory.value = newBackstory
+    }
+
+    fun onHomeLocationChange(locationId: Int?) {
+        homeLocationId.value = locationId
     }
 
     fun saveCharacter() {
         viewModelScope.launch {
-            val worldId: Int = savedStateHandle.get<Int>("worldId") ?: throw IllegalStateException("worldId not found in SavedStateHandle")
             val character = Character(
-                name = _characterName.value,
-                backstory = _characterBackstory.value,
-                worldId = worldId
+                name = characterName.value,
+                backstory = characterBackstory.value,
+                worldId = worldId,
+                homeLocationId = homeLocationId.value
             )
             characterRepository.insert(character)
         }
