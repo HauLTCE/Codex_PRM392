@@ -9,9 +9,18 @@ public class World {
     public int id;
     public String name;
     public String description;
+    public long createdAt;
+    public long lastModifiedAt;
+    public String imageUri;
+    public String tags;
+    public boolean isPinned;
+    public String colorHex;
 
     public World(String name, String description) {
         this.name = name;
         this.description = description;
+        this.createdAt = System.currentTimeMillis();
+        this.lastModifiedAt = System.currentTimeMillis();
+        this.isPinned = false;
     }
 }

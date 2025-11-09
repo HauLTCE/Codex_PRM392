@@ -1,14 +1,16 @@
 package com.hault.codex_java.data.local.dao;
-
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.RawQuery;
+import androidx.room.Transaction;
 import androidx.room.Update;
+import androidx.sqlite.db.SupportSQLiteQuery;
 import com.hault.codex_java.data.model.World;
+import com.hault.codex_java.data.model.relations.WorldWithDetails;
 import java.util.List;
-
 @Dao
 public interface WorldDao {
     @Insert
@@ -26,12 +28,10 @@ public interface WorldDao {
     @Query("SELECT * FROM worlds WHERE id = :id")
     LiveData<World> getWorldById(int id);
 
-    @Query("SELECT * FROM worlds ORDER BY name ASC")
-    LiveData<List<World>> getAllWorldsSortedByNameASC();
+    @RawQuery(observedEntities = World.class)
+    LiveData<List<World>> search(SupportSQLiteQuery query);
 
-    @Query("SELECT * FROM worlds ORDER BY name DESC")
-    LiveData<List<World>> getAllWorldsSortedByNameDESC();
-
-    @Query("SELECT * FROM worlds WHERE name LIKE :query ORDER BY name ASC")
-    LiveData<List<World>> searchWorlds(String query);
+    @Transaction
+    @Query("SELECT * FROM worlds WHERE id = :worldId")
+    LiveData<WorldWithDetails> getWorldWithDetails(int worldId);
 }

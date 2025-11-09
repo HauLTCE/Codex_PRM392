@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hault.codex_java.R;
 import com.hault.codex_java.data.model.Event;
@@ -25,6 +26,8 @@ public class AddEventFragment extends Fragment {
     private TextInputEditText editTextEventName;
     private TextInputEditText editTextEventDate;
     private TextInputEditText editTextEventDescription;
+    private TextInputEditText editTextTags;
+    private SwitchMaterial switchIsPinned;
     private int worldId;
 
     public static AddEventFragment newInstance(int worldId) {
@@ -57,6 +60,8 @@ public class AddEventFragment extends Fragment {
         editTextEventName = view.findViewById(R.id.editTextEventName);
         editTextEventDate = view.findViewById(R.id.editTextEventDate);
         editTextEventDescription = view.findViewById(R.id.editTextEventDescription);
+        editTextTags = view.findViewById(R.id.editTextTags);
+        switchIsPinned = view.findViewById(R.id.switchIsPinned);
         Button buttonSaveEvent = view.findViewById(R.id.buttonSaveEvent);
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setTitle("Add Event");
@@ -69,6 +74,8 @@ public class AddEventFragment extends Fragment {
         String name = editTextEventName.getText().toString().trim();
         String date = editTextEventDate.getText().toString().trim();
         String description = editTextEventDescription.getText().toString().trim();
+        String tags = editTextTags.getText().toString().trim();
+        boolean isPinned = switchIsPinned.isChecked();
 
         if (name.isEmpty() || date.isEmpty()) {
             Toast.makeText(getContext(), "Event name and date are required", Toast.LENGTH_SHORT).show();
@@ -76,6 +83,9 @@ public class AddEventFragment extends Fragment {
         }
 
         Event newEvent = new Event(name, description, date, worldId);
+        newEvent.tags = tags;
+        newEvent.isPinned = isPinned;
+
         eventViewModel.insert(newEvent);
         getParentFragmentManager().popBackStack();
     }

@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hault.codex_java.R;
 import com.hault.codex_java.data.model.Location;
@@ -25,6 +26,8 @@ public class AddLocationFragment extends Fragment {
     private LocationViewModel locationViewModel;
     private TextInputEditText editTextLocationName;
     private TextInputEditText editTextLocationDescription;
+    private TextInputEditText editTextTags;
+    private SwitchMaterial switchIsPinned;
     private int worldId;
 
     public static AddLocationFragment newInstance(int worldId) {
@@ -56,6 +59,8 @@ public class AddLocationFragment extends Fragment {
 
         editTextLocationName = view.findViewById(R.id.editTextLocationName);
         editTextLocationDescription = view.findViewById(R.id.editTextLocationDescription);
+        editTextTags = view.findViewById(R.id.editTextTags);
+        switchIsPinned = view.findViewById(R.id.switchIsPinned);
         Button buttonSaveLocation = view.findViewById(R.id.buttonSaveLocation);
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setTitle("Add Location");
@@ -67,6 +72,8 @@ public class AddLocationFragment extends Fragment {
     private void saveLocation() {
         String name = editTextLocationName.getText().toString().trim();
         String description = editTextLocationDescription.getText().toString().trim();
+        String tags = editTextTags.getText().toString().trim();
+        boolean isPinned = switchIsPinned.isChecked();
 
         if (name.isEmpty()) {
             Toast.makeText(getContext(), "Location name cannot be empty", Toast.LENGTH_SHORT).show();
@@ -74,6 +81,9 @@ public class AddLocationFragment extends Fragment {
         }
 
         Location newLocation = new Location(name, description, worldId);
+        newLocation.tags = tags;
+        newLocation.isPinned = isPinned;
+
         locationViewModel.insert(newLocation);
         getParentFragmentManager().popBackStack();
     }

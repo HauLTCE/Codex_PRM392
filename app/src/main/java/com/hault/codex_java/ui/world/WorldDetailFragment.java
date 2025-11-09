@@ -1,21 +1,29 @@
 package com.hault.codex_java.ui.world;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.hault.codex_java.R;
+import com.hault.codex_java.ui.arc.AddArcFragment;
+import com.hault.codex_java.ui.character.AddCharacterFragment;
+import com.hault.codex_java.ui.event.AddEventFragment;
+import com.hault.codex_java.ui.location.AddLocationFragment;
+import com.hault.codex_java.viewmodel.ArcViewModel;
 import com.hault.codex_java.viewmodel.CharacterViewModel;
 import com.hault.codex_java.viewmodel.EventViewModel;
 import com.hault.codex_java.viewmodel.LocationViewModel;
@@ -26,20 +34,29 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class WorldDetailFragment extends Fragment {
 
     private static final String ARG_WORLD_ID = "world_id";
+    private static final String ARG_START_TAB_INDEX = "start_tab_index";
     private int worldId;
-
+    private int startTabIndex;
     private WorldViewModel worldViewModel;
     private CharacterViewModel characterViewModel;
     private LocationViewModel locationViewModel;
     private EventViewModel eventViewModel;
-
-    private MenuItem characterSearchItem, locationSearchItem, eventSearchItem;
-    private SearchView characterSearchView, locationSearchView, eventSearchView;
+    private ArcViewModel arcViewModel;
+    private TextInputEditText searchEditText;
+    private TextInputLayout searchInputLayout;
+    private ViewPager2 viewPager;
+    private FloatingActionButton fab;
+    private TextWatcher currentTextWatcher;
 
     public static WorldDetailFragment newInstance(int worldId) {
+        return newInstance(worldId, 0);
+    }
+
+    public static WorldDetailFragment newInstance(int worldId, int startTabIndex) {
         WorldDetailFragment fragment = new WorldDetailFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_WORLD_ID, worldId);
+        args.putInt(ARG_START_TAB_INDEX, startTabIndex);
         fragment.setArguments(args);
         return fragment;
     }
@@ -49,11 +66,13 @@ public class WorldDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             worldId = getArguments().getInt(ARG_WORLD_ID);
+            startTabIndex = getArguments().getInt(ARG_START_TAB_INDEX);
         }
         worldViewModel = new ViewModelProvider(requireActivity()).get(WorldViewModel.class);
         characterViewModel = new ViewModelProvider(requireActivity()).get(CharacterViewModel.class);
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
         eventViewModel = new ViewModelProvider(requireActivity()).get(EventViewModel.class);
+        arcViewModel = new ViewModelProvider(requireActivity()).get(ArcViewModel.class);
     }
 
     @Nullable
@@ -68,91 +87,99 @@ public class WorldDetailFragment extends Fragment {
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
         TabLayout tabLayout = view.findViewById(R.id.tab_layout);
-        ViewPager2 viewPager = view.findViewById(R.id.view_pager);
+        viewPager = view.findViewById(R.id.view_pager);
+        searchEditText = view.findViewById(R.id.search_edit_text);
+        searchInputLayout = view.findViewById(R.id.search_input_layout);
+        fab = view.findViewById(R.id.fabAddItem);
+
 
         toolbar.setNavigationOnClickListener(v -> getParentFragmentManager().popBackStack());
-
         worldViewModel.getWorldById(worldId).observe(getViewLifecycleOwner(), world -> {
             if (world != null) {
                 toolbar.setTitle(world.name);
             }
         });
 
-        // Inflate all menus
-        toolbar.inflateMenu(R.menu.world_detail_menu);
-        toolbar.inflateMenu(R.menu.character_list_menu);
-        toolbar.inflateMenu(R.menu.location_list_menu);
-        toolbar.inflateMenu(R.menu.event_list_menu);
-
         setupToolbarMenuActions(toolbar);
-        setupSearch(toolbar, viewPager);
 
         WorldDetailViewPagerAdapter adapter = new WorldDetailViewPagerAdapter(requireActivity(), worldId);
         viewPager.setAdapter(adapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
-                case 0:
-                    tab.setText("Characters");
-                    break;
-                case 1:
-                    tab.setText("Locations");
-                    break;
-                case 2:
-                    tab.setText("Events");
-                    break;
+                case 0: tab.setText("Characters"); break;
+                case 1: tab.setText("Locations"); break;
+                case 2: tab.setText("Events"); break;
+                case 3: tab.setText("Arcs"); break;
             }
         }).attach();
+
+        viewPager.setCurrentItem(startTabIndex, false);
+
+        setupDynamicSearchAndFab();
     }
 
-    private void setupSearch(MaterialToolbar toolbar, ViewPager2 viewPager) {
-        characterSearchItem = toolbar.getMenu().findItem(R.id.action_search_characters);
-        characterSearchView = (SearchView) characterSearchItem.getActionView();
-        locationSearchItem = toolbar.getMenu().findItem(R.id.action_search_locations);
-        locationSearchView = (SearchView) locationSearchItem.getActionView();
-        eventSearchItem = toolbar.getMenu().findItem(R.id.action_search_events);
-        eventSearchView = (SearchView) eventSearchItem.getActionView();
-
-        characterSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override public boolean onQueryTextSubmit(String query) { return false; }
-            @Override public boolean onQueryTextChange(String newText) {
-                characterViewModel.setSearchQuery(newText);
-                return true;
-            }
-        });
-        locationSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override public boolean onQueryTextSubmit(String query) { return false; }
-            @Override public boolean onQueryTextChange(String newText) {
-                locationViewModel.setSearchQuery(newText);
-                return true;
-            }
-        });
-        eventSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override public boolean onQueryTextSubmit(String query) { return false; }
-            @Override public boolean onQueryTextChange(String newText) {
-                eventViewModel.setSearchQuery(newText);
-                return true;
-            }
-        });
-
+    private void setupDynamicSearchAndFab() {
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                characterSearchItem.setVisible(position == 0);
-                locationSearchItem.setVisible(position == 1);
-                eventSearchItem.setVisible(position == 2);
-
-                if (!characterSearchView.isIconified()) characterSearchItem.collapseActionView();
-                if (!locationSearchView.isIconified()) locationSearchItem.collapseActionView();
-                if (!eventSearchView.isIconified()) eventSearchItem.collapseActionView();
+                updateSearchAndFab(position);
             }
         });
+        // Initial setup for the first tab
+        updateSearchAndFab(0);
+    }
 
-        // Set initial visibility
-        characterSearchItem.setVisible(true);
-        locationSearchItem.setVisible(false);
-        eventSearchItem.setVisible(false);
+    private void updateSearchAndFab(int position) {
+        if (currentTextWatcher != null) {
+            searchEditText.removeTextChangedListener(currentTextWatcher);
+        }
+        searchEditText.setText("");
+
+        switch (position) {
+            case 0: // Characters
+                searchInputLayout.setHint("Search Characters...");
+                currentTextWatcher = createTextWatcher(s -> characterViewModel.setSearchQuery(s));
+                fab.setOnClickListener(v -> navigateToAddFragment(AddCharacterFragment.newInstance(worldId)));
+                break;
+            case 1: // Locations
+                searchInputLayout.setHint("Search Locations...");
+                currentTextWatcher = createTextWatcher(s -> locationViewModel.setSearchQuery(s));
+                fab.setOnClickListener(v -> navigateToAddFragment(AddLocationFragment.newInstance(worldId)));
+                break;
+            case 2: // Events
+                searchInputLayout.setHint("Search Events...");
+                currentTextWatcher = createTextWatcher(s -> eventViewModel.setSearchQuery(s));
+                fab.setOnClickListener(v -> navigateToAddFragment(AddEventFragment.newInstance(worldId)));
+                break;
+            case 3: // Arcs
+                searchInputLayout.setHint("Search Arcs...");
+                currentTextWatcher = createTextWatcher(s -> arcViewModel.setSearchQuery(s));
+                fab.setOnClickListener(v -> navigateToAddFragment(AddArcFragment.newInstance(worldId)));
+                break;
+        }
+        searchEditText.addTextChangedListener(currentTextWatcher);
+    }
+
+    private TextWatcher createTextWatcher(SearchQueryUpdater updater) {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updater.update(s.toString());
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        };
+    }
+
+    private void navigateToAddFragment(Fragment fragment) {
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container_view, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void setupToolbarMenuActions(MaterialToolbar toolbar) {
@@ -182,5 +209,10 @@ public class WorldDetailFragment extends Fragment {
             }
             return false;
         });
+    }
+
+    // Functional interface for lambda expression
+    interface SearchQueryUpdater {
+        void update(String query);
     }
 }

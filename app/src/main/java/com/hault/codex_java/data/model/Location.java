@@ -21,10 +21,19 @@ public class Location {
     public String name;
     public String description;
     public int worldId;
+    public long createdAt;
+    public long lastModifiedAt;
+    public String imageUri;
+    public String tags;
+    public boolean isPinned;
+    public String colorHex;
 
     public Location(String name, String description, int worldId) {
         this.name = name;
         this.description = description;
         this.worldId = worldId;
+        this.createdAt = System.currentTimeMillis();
+        this.lastModifiedAt = System.currentTimeMillis();
+        this.isPinned = false;
     }
 }

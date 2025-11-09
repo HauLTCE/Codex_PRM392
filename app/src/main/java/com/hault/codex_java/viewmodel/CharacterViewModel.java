@@ -9,6 +9,7 @@ import com.hault.codex_java.data.local.specification.CharacterByNameSpecificatio
 import com.hault.codex_java.data.local.specification.CharacterByWorldSpecification;
 import com.hault.codex_java.data.local.specification.Specification;
 import com.hault.codex_java.data.model.Character;
+import com.hault.codex_java.data.model.relations.CharacterWithDetails;
 import com.hault.codex_java.data.repository.CharacterRepository;
 import java.util.List;
 import javax.inject.Inject;
@@ -26,7 +27,6 @@ public class CharacterViewModel extends ViewModel {
     public CharacterViewModel(CharacterRepository repository) {
         this.repository = repository;
 
-        // This LiveData will react to changes in either the worldId or the search query
         characters = Transformations.switchMap(worldIdFilter, worldId ->
                 Transformations.switchMap(searchQuery, query -> {
                     Specification spec = new CharacterByWorldSpecification(worldId);
@@ -52,6 +52,10 @@ public class CharacterViewModel extends ViewModel {
 
     public LiveData<Character> getCharacter(int id) {
         return repository.getCharacter(id);
+    }
+
+    public LiveData<CharacterWithDetails> getCharacterWithDetails(int characterId) {
+        return repository.characterDao.getCharacterWithDetails(characterId);
     }
 
     public void insert(Character character) {

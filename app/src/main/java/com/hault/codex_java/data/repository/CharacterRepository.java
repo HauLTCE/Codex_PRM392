@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class CharacterRepository {
-    private final CharacterDao characterDao;
+    public final CharacterDao characterDao;
     private final ExecutorService executorService;
 
     public CharacterRepository(CharacterDao characterDao) {
@@ -24,10 +24,12 @@ public class CharacterRepository {
     }
 
     public void insert(Character character) {
+        character.lastModifiedAt = System.currentTimeMillis();
         executorService.execute(() -> characterDao.insert(character));
     }
 
     public void update(Character character) {
+        character.lastModifiedAt = System.currentTimeMillis();
         executorService.execute(() -> characterDao.update(character));
     }
 

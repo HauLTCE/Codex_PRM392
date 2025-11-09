@@ -8,12 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.hault.codex_java.R;
-import com.hault.codex_java.data.model.Location;
 import com.hault.codex_java.viewmodel.LocationViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -62,37 +58,11 @@ public class LocationListFragment extends Fragment {
             adapter.submitList(locations);
         });
 
-        FloatingActionButton fab = view.findViewById(R.id.fabAddLocation);
-        fab.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container_view, AddLocationFragment.newInstance(worldId))
-                    .addToBackStack(null)
-                    .commit();
-        });
-
         adapter.setOnItemClickListener(location -> {
             getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container_view, EditLocationFragment.newInstance(worldId, location.id))
+                    .replace(R.id.fragment_container_view, LocationDetailFragment.newInstance(location.id))
                     .addToBackStack(null)
                     .commit();
         });
-
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-                Location locationToDelete = adapter.getLocationAt(position);
-                locationViewModel.delete(locationToDelete);
-                Snackbar.make(view, "Location deleted", Snackbar.LENGTH_LONG)
-                        .setAction("Undo", v -> locationViewModel.insert(locationToDelete))
-                        .show();
-            }
-        }).attachToRecyclerView(recyclerView);
     }
 }

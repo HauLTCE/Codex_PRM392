@@ -6,8 +6,14 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.RawQuery;
+import androidx.room.Transaction;
 import androidx.room.Update;
+import androidx.sqlite.db.SupportSQLiteQuery;
+
 import com.hault.codex_java.data.model.Location;
+import com.hault.codex_java.data.model.relations.LocationWithDetails;
+
 import java.util.List;
 
 @Dao
@@ -27,6 +33,10 @@ public interface LocationDao {
     @Query("SELECT * FROM locations WHERE id = :id")
     LiveData<Location> getLocationById(int id);
 
-    @Query("SELECT * FROM locations WHERE worldId = :worldId AND name LIKE :query ORDER BY name ASC")
-    LiveData<List<Location>> searchLocationsForWorld(int worldId, String query);
+    @RawQuery(observedEntities = Location.class)
+    LiveData<List<Location>> search(SupportSQLiteQuery query);
+
+    @Transaction
+    @Query("SELECT * FROM locations WHERE id = :locationId")
+    LiveData<LocationWithDetails> getLocationWithDetails(int locationId);
 }

@@ -6,9 +6,9 @@
     <!-- Morning Palette (Light, Soft) -->
     <color name="morning_primary">#FFC107</color>
     <color name="morning_onPrimary">#FF000000</color>
-    <color name="morning_surface">#F6F4CF</color>
+    <color name="morning_surface">#F0EFE1</color>
     <color name="morning_onSurface">#FF000000</color>
-    <color name="morning_background">#FFFDE7</color>
+    <color name="morning_background">#FFFDEE</color>
     <color name="morning_onBackground">#FF000000</color>
 
     <!-- Day Palette (Light, Bright) -->

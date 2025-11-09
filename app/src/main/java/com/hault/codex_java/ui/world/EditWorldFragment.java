@@ -6,18 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hault.codex_java.R;
 import com.hault.codex_java.data.model.World;
 import com.hault.codex_java.viewmodel.WorldViewModel;
-
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -28,6 +26,8 @@ public class EditWorldFragment extends Fragment {
     private WorldViewModel worldViewModel;
     private TextInputEditText editTextWorldName;
     private TextInputEditText editTextWorldDescription;
+    private TextInputEditText editTextTags;
+    private SwitchMaterial switchIsPinned;
     private World currentWorld;
     private int worldId;
 
@@ -60,6 +60,8 @@ public class EditWorldFragment extends Fragment {
 
         editTextWorldName = view.findViewById(R.id.editTextWorldName);
         editTextWorldDescription = view.findViewById(R.id.editTextWorldDescription);
+        editTextTags = view.findViewById(R.id.editTextTags);
+        switchIsPinned = view.findViewById(R.id.switchIsPinned);
         Button buttonSaveWorld = view.findViewById(R.id.buttonSaveWorld);
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
 
@@ -70,6 +72,8 @@ public class EditWorldFragment extends Fragment {
                 currentWorld = world;
                 editTextWorldName.setText(currentWorld.name);
                 editTextWorldDescription.setText(currentWorld.description);
+                editTextTags.setText(currentWorld.tags);
+                switchIsPinned.setChecked(currentWorld.isPinned);
             }
         });
 
@@ -80,6 +84,8 @@ public class EditWorldFragment extends Fragment {
     private void saveWorld() {
         String name = editTextWorldName.getText().toString().trim();
         String description = editTextWorldDescription.getText().toString().trim();
+        String tags = editTextTags.getText().toString().trim();
+        boolean isPinned = switchIsPinned.isChecked();
 
         if (name.isEmpty()) {
             Toast.makeText(getContext(), "World name cannot be empty", Toast.LENGTH_SHORT).show();
@@ -88,6 +94,8 @@ public class EditWorldFragment extends Fragment {
 
         currentWorld.name = name;
         currentWorld.description = description;
+        currentWorld.tags = tags;
+        currentWorld.isPinned = isPinned;
         worldViewModel.update(currentWorld);
 
         getParentFragmentManager().popBackStack();

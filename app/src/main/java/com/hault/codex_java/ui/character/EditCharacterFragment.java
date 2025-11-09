@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.hault.codex_java.R;
 import com.hault.codex_java.data.model.Character;
 import com.hault.codex_java.data.model.Location;
@@ -39,6 +40,8 @@ public class EditCharacterFragment extends Fragment {
     private Character currentCharacter;
     private int worldId;
     private int characterId;
+    private TextInputEditText editTextTags;
+    private SwitchMaterial switchIsPinned;
 
     public static EditCharacterFragment newInstance(int worldId, int characterId) {
         EditCharacterFragment fragment = new EditCharacterFragment();
@@ -74,6 +77,8 @@ public class EditCharacterFragment extends Fragment {
         editTextCharacterName = view.findViewById(R.id.editTextCharacterName);
         editTextCharacterBackstory = view.findViewById(R.id.editTextCharacterBackstory);
         spinnerHomeLocation = view.findViewById(R.id.spinnerHomeLocation);
+        editTextTags = view.findViewById(R.id.editTextTags);
+        switchIsPinned = view.findViewById(R.id.switchIsPinned);
         Button buttonSaveCharacter = view.findViewById(R.id.buttonSaveCharacter);
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setTitle("Edit Character");
@@ -95,6 +100,8 @@ public class EditCharacterFragment extends Fragment {
         if (currentCharacter == null) return;
         editTextCharacterName.setText(currentCharacter.name);
         editTextCharacterBackstory.setText(currentCharacter.backstory);
+        editTextTags.setText(currentCharacter.tags);
+        switchIsPinned.setChecked(currentCharacter.isPinned);
         setupLocationSpinner();
     }
 
@@ -126,6 +133,8 @@ public class EditCharacterFragment extends Fragment {
     private void saveCharacter() {
         String name = editTextCharacterName.getText().toString().trim();
         String backstory = editTextCharacterBackstory.getText().toString().trim();
+        String tags = editTextTags.getText().toString().trim();
+        boolean isPinned = switchIsPinned.isChecked();
 
         if (name.isEmpty()) {
             Toast.makeText(getContext(), "Character name cannot be empty", Toast.LENGTH_SHORT).show();
@@ -141,6 +150,8 @@ public class EditCharacterFragment extends Fragment {
         currentCharacter.name = name;
         currentCharacter.backstory = backstory;
         currentCharacter.homeLocationId = locationId;
+        currentCharacter.tags = tags;
+        currentCharacter.isPinned = isPinned;
 
         characterViewModel.update(currentCharacter);
         getParentFragmentManager().popBackStack();

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
+import com.hault.codex_java.ui.arc.ArcListFragment;
 import com.hault.codex_java.ui.character.CharacterListFragment;
 import com.hault.codex_java.ui.event.EventListFragment;
 import com.hault.codex_java.ui.location.LocationListFragment;
@@ -27,6 +28,8 @@ public class WorldDetailViewPagerAdapter extends FragmentStateAdapter {
                 return LocationListFragment.newInstance(worldId);
             case 2:
                 return EventListFragment.newInstance(worldId);
+            case 3:
+                return ArcListFragment.newInstance(worldId);
             default:
                 return new Fragment();
         }
@@ -34,6 +37,6 @@ public class WorldDetailViewPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 3;
+        return 4;
     }
 }

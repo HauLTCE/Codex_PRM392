@@ -7,10 +7,12 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.RawQuery;
+import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
 import com.hault.codex_java.data.model.Event;
+import com.hault.codex_java.data.model.relations.EventWithDetails;
 
 import java.util.List;
 
@@ -32,6 +34,10 @@ public interface EventDao {
     @Query("SELECT * FROM events WHERE worldId = :worldId ORDER BY date")
     LiveData<List<Event>> getEventsForWorld(int worldId);
 
-    @Query("SELECT * FROM events WHERE worldId = :worldId AND name LIKE :query ORDER BY date DESC")
-    LiveData<List<Event>> searchEventsForWorld(int worldId, String query);
+    @RawQuery(observedEntities = Event.class)
+    LiveData<List<Event>> search(SupportSQLiteQuery query);
+
+    @Transaction
+    @Query("SELECT * FROM events WHERE id = :eventId")
+    LiveData<EventWithDetails> getEventWithDetails(int eventId);
 }

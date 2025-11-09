@@ -1,11 +1,8 @@
 package com.hault.codex_java.data.model;
-
-
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-
 @Entity(
         tableName = "characters",
         foreignKeys = {
@@ -34,11 +31,20 @@ public class Character {
     public String backstory;
     public int worldId;
     public Integer homeLocationId;
+    public long createdAt;
+    public long lastModifiedAt;
+    public String imageUri;
+    public String tags;
+    public boolean isPinned;
+    public String colorHex;
 
     public Character(String name, String backstory, int worldId, Integer homeLocationId) {
         this.name = name;
         this.backstory = backstory;
         this.worldId = worldId;
         this.homeLocationId = homeLocationId;
+        this.createdAt = System.currentTimeMillis();
+        this.lastModifiedAt = System.currentTimeMillis();
+        this.isPinned = false;
     }
 }

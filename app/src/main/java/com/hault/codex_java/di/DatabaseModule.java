@@ -2,12 +2,19 @@ package com.hault.codex_java.di;
 
 import android.content.Context;
 import androidx.room.Room;
+
+import com.hault.codex_java.data.local.dao.ArcDao;
+import com.hault.codex_java.data.local.dao.ChapterDao;
 import com.hault.codex_java.data.local.dao.CharacterDao;
+import com.hault.codex_java.data.local.dao.CrossRefDao;
 import com.hault.codex_java.data.local.dao.EventDao;
 import com.hault.codex_java.data.local.dao.LocationDao;
 import com.hault.codex_java.data.local.dao.WorldDao;
 import com.hault.codex_java.data.local.db.AppDatabase;
+import com.hault.codex_java.data.repository.ArcRepository;
+import com.hault.codex_java.data.repository.ChapterRepository;
 import com.hault.codex_java.data.repository.CharacterRepository;
+import com.hault.codex_java.data.repository.CrossRefRepository;
 import com.hault.codex_java.data.repository.EventRepository;
 import com.hault.codex_java.data.repository.LocationRepository;
 import com.hault.codex_java.data.repository.WorldRepository;
@@ -30,7 +37,11 @@ public class DatabaseModule {
                 context,
                 AppDatabase.class,
                 "codex_database"
-        ).addMigrations(AppDatabase.MIGRATION_2_3).build();
+        ).addMigrations(
+                AppDatabase.MIGRATION_2_3,
+                AppDatabase.MIGRATION_3_4,
+                AppDatabase.MIGRATION_4_5
+        ).build();
     }
 
     @Provides
@@ -51,6 +62,21 @@ public class DatabaseModule {
     @Provides
     public static EventDao provideEventDao(AppDatabase appDatabase) {
         return appDatabase.eventDao();
+    }
+
+    @Provides
+    public static ArcDao provideArcDao(AppDatabase appDatabase) {
+        return appDatabase.arcDao();
+    }
+
+    @Provides
+    public static ChapterDao provideChapterDao(AppDatabase appDatabase) {
+        return appDatabase.chapterDao();
+    }
+
+    @Provides
+    public static CrossRefDao provideCrossRefDao(AppDatabase appDatabase) {
+        return appDatabase.crossRefDao();
     }
 
     @Provides
@@ -75,5 +101,23 @@ public class DatabaseModule {
     @Singleton
     public static EventRepository provideEventRepository(EventDao eventDao) {
         return new EventRepository(eventDao);
+    }
+
+    @Provides
+    @Singleton
+    public static ArcRepository provideArcRepository(ArcDao arcDao) {
+        return new ArcRepository(arcDao);
+    }
+
+    @Provides
+    @Singleton
+    public static ChapterRepository provideChapterRepository(ChapterDao chapterDao) {
+        return new ChapterRepository(chapterDao);
+    }
+
+    @Provides
+    @Singleton
+    public static CrossRefRepository provideCrossRefRepository(CrossRefDao crossRefDao) {
+        return new CrossRefRepository(crossRefDao);
     }
 }

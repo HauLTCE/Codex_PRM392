@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EventRepository {
-    private final EventDao eventDao;
+    public final EventDao eventDao;
     private final ExecutorService executorService;
 
     public EventRepository(EventDao eventDao) {
@@ -24,10 +24,12 @@ public class EventRepository {
     }
 
     public void insert(Event event) {
+        event.lastModifiedAt = System.currentTimeMillis();
         executorService.execute(() -> eventDao.insert(event));
     }
 
     public void update(Event event) {
+        event.lastModifiedAt = System.currentTimeMillis();
         executorService.execute(() -> eventDao.update(event));
     }
 
@@ -39,8 +41,17 @@ public class EventRepository {
         return eventDao.getEvent(id);
     }
 
-    public LiveData<List<Event>> searchEventsForWorld(int worldId, String query) {
-        return eventDao.searchEventsForWorld(worldId, query);
-    }
+    public LiveData<List<Event>> searchEvents(Specification specification) {
+        StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM events");
+        Object[] args = new Object[0];
 
+        if (specification != null && specification.getSelectionClause() != null && !specification.getSelectionClause().isEmpty()) {
+            sqlBuilder.append(" WHERE ").append(specification.getSelectionClause());
+            args = specification.getSelectionArgs();
+        }
+        sqlBuilder.append(" ORDER BY date ASC");
+
+        SupportSQLiteQuery query = new SimpleSQLiteQuery(sqlBuilder.toString(), args);
+        return eventDao.search(query);
+    }
 }

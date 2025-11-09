@@ -8,12 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.hault.codex_java.R;
-import com.hault.codex_java.data.model.Event;
 import com.hault.codex_java.viewmodel.EventViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -62,37 +58,11 @@ public class EventListFragment extends Fragment {
             adapter.submitList(events);
         });
 
-        FloatingActionButton fab = view.findViewById(R.id.fabAddEvent);
-        fab.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container_view, AddEventFragment.newInstance(worldId))
-                    .addToBackStack(null)
-                    .commit();
-        });
-
         adapter.setOnItemClickListener(event -> {
             getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container_view, EditEventFragment.newInstance(worldId, event.id))
+                    .replace(R.id.fragment_container_view, EventDetailFragment.newInstance(event.id))
                     .addToBackStack(null)
                     .commit();
         });
-
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-                Event eventToDelete = adapter.getEventAt(position);
-                eventViewModel.delete(eventToDelete);
-                Snackbar.make(view, "Event deleted", Snackbar.LENGTH_LONG)
-                        .setAction("Undo", v -> eventViewModel.insert(eventToDelete))
-                        .show();
-            }
-        }).attachToRecyclerView(recyclerView);
     }
 }

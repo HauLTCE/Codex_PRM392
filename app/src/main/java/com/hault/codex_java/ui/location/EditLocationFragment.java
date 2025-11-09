@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hault.codex_java.R;
 import com.hault.codex_java.data.model.Location;
@@ -26,6 +27,8 @@ public class EditLocationFragment extends Fragment {
     private LocationViewModel locationViewModel;
     private TextInputEditText editTextLocationName;
     private TextInputEditText editTextLocationDescription;
+    private TextInputEditText editTextTags;
+    private SwitchMaterial switchIsPinned;
     private Location currentLocation;
     private int worldId;
     private int locationId;
@@ -61,6 +64,8 @@ public class EditLocationFragment extends Fragment {
 
         editTextLocationName = view.findViewById(R.id.editTextLocationName);
         editTextLocationDescription = view.findViewById(R.id.editTextLocationDescription);
+        editTextTags = view.findViewById(R.id.editTextTags);
+        switchIsPinned = view.findViewById(R.id.switchIsPinned);
         Button buttonSaveLocation = view.findViewById(R.id.buttonSaveLocation);
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setTitle("Edit Location");
@@ -73,6 +78,8 @@ public class EditLocationFragment extends Fragment {
                 currentLocation = location;
                 editTextLocationName.setText(currentLocation.name);
                 editTextLocationDescription.setText(currentLocation.description);
+                editTextTags.setText(currentLocation.tags);
+                switchIsPinned.setChecked(currentLocation.isPinned);
             }
         });
 
@@ -84,6 +91,8 @@ public class EditLocationFragment extends Fragment {
 
         String name = editTextLocationName.getText().toString().trim();
         String description = editTextLocationDescription.getText().toString().trim();
+        String tags = editTextTags.getText().toString().trim();
+        boolean isPinned = switchIsPinned.isChecked();
 
         if (name.isEmpty()) {
             Toast.makeText(getContext(), "Location name cannot be empty", Toast.LENGTH_SHORT).show();
@@ -92,6 +101,8 @@ public class EditLocationFragment extends Fragment {
 
         currentLocation.name = name;
         currentLocation.description = description;
+        currentLocation.tags = tags;
+        currentLocation.isPinned = isPinned;
         locationViewModel.update(currentLocation);
         getParentFragmentManager().popBackStack();
     }

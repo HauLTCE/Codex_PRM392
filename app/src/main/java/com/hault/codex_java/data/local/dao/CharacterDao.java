@@ -7,10 +7,12 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.RawQuery;
+import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
 import com.hault.codex_java.data.model.Character;
+import com.hault.codex_java.data.model.relations.CharacterWithDetails;
 
 import java.util.List;
 
@@ -34,4 +36,8 @@ public interface CharacterDao {
 
     @RawQuery(observedEntities = Character.class)
     LiveData<List<Character>> search(SupportSQLiteQuery query);
+
+    @Transaction
+    @Query("SELECT * FROM characters WHERE id = :characterId")
+    LiveData<CharacterWithDetails> getCharacterWithDetails(int characterId);
 }

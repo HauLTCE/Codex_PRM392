@@ -16,11 +16,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.hault.codex_java.R;
 import com.hault.codex_java.data.model.Character;
 import com.hault.codex_java.data.model.Location;
 import com.hault.codex_java.viewmodel.CharacterViewModel;
 import com.hault.codex_java.viewmodel.LocationViewModel;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,8 @@ public class AddCharacterFragment extends Fragment {
     private Spinner spinnerHomeLocation;
     private List<Location> locationList = new ArrayList<>();
     private int worldId;
+    private TextInputEditText editTextTags;
+    private SwitchMaterial switchIsPinned;
 
     public static AddCharacterFragment newInstance(int worldId) {
         AddCharacterFragment fragment = new AddCharacterFragment();
@@ -72,6 +76,8 @@ public class AddCharacterFragment extends Fragment {
         editTextCharacterName = view.findViewById(R.id.editTextCharacterName);
         editTextCharacterBackstory = view.findViewById(R.id.editTextCharacterBackstory);
         spinnerHomeLocation = view.findViewById(R.id.spinnerHomeLocation);
+        editTextTags = view.findViewById(R.id.editTextTags);
+        switchIsPinned = view.findViewById(R.id.switchIsPinned);
         Button buttonSaveCharacter = view.findViewById(R.id.buttonSaveCharacter);
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setTitle("Add Character");
@@ -100,6 +106,8 @@ public class AddCharacterFragment extends Fragment {
     private void saveCharacter() {
         String name = editTextCharacterName.getText().toString().trim();
         String backstory = editTextCharacterBackstory.getText().toString().trim();
+        String tags = editTextTags.getText().toString().trim();
+        boolean isPinned = switchIsPinned.isChecked();
 
         if (name.isEmpty()) {
             Toast.makeText(getContext(), "Character name cannot be empty", Toast.LENGTH_SHORT).show();
@@ -108,11 +116,16 @@ public class AddCharacterFragment extends Fragment {
 
         Integer locationId = null;
         int selectedPosition = spinnerHomeLocation.getSelectedItemPosition();
-        if (selectedPosition > 0) { // Position 0 is "No Location"
+        if (selectedPosition > 0) {
             locationId = locationList.get(selectedPosition - 1).id;
         }
 
         Character newCharacter = new Character(name, backstory, worldId, locationId);
+        newCharacter.tags = tags;
+        newCharacter.isPinned = isPinned;
+        // newCharacter.imageUri = ... (logic to be added)
+        // newCharacter.colorHex = ... (logic to be added)
+
         characterViewModel.insert(newCharacter);
 
         getParentFragmentManager().popBackStack();

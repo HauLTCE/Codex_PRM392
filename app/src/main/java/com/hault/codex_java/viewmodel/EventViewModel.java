@@ -4,7 +4,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
+
+import com.hault.codex_java.data.local.specification.AndSpecification;
+import com.hault.codex_java.data.local.specification.EventByNameSpecification;
+import com.hault.codex_java.data.local.specification.EventByWorldSpecification;
+import com.hault.codex_java.data.local.specification.Specification;
 import com.hault.codex_java.data.model.Event;
+import com.hault.codex_java.data.model.relations.EventWithDetails;
 import com.hault.codex_java.data.repository.EventRepository;
 import java.util.List;
 import javax.inject.Inject;
@@ -25,11 +31,11 @@ public class EventViewModel extends ViewModel {
 
         events = Transformations.switchMap(worldIdFilter, worldId ->
                 Transformations.switchMap(searchQuery, query -> {
-                    if (query == null || query.isEmpty()) {
-                        return repository.getEventsForWorld(worldId);
-                    } else {
-                        return repository.searchEventsForWorld(worldId, "%" + query + "%");
+                    Specification spec = new EventByWorldSpecification(worldId);
+                    if (query != null && !query.isEmpty()) {
+                        spec = new AndSpecification(spec, new EventByNameSpecification(query));
                     }
+                    return repository.searchEvents(spec);
                 })
         );
     }
@@ -48,6 +54,10 @@ public class EventViewModel extends ViewModel {
 
     public LiveData<Event> getEventById(int id) {
         return repository.getEvent(id);
+    }
+
+    public LiveData<EventWithDetails> getEventWithDetails(int eventId) {
+        return repository.eventDao.getEventWithDetails(eventId);
     }
 
     public void insert(Event event) {

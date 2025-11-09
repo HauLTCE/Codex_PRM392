@@ -4,7 +4,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
+
+import com.hault.codex_java.data.local.specification.AndSpecification;
+import com.hault.codex_java.data.local.specification.LocationByNameSpecification;
+import com.hault.codex_java.data.local.specification.LocationByWorldSpecification;
+import com.hault.codex_java.data.local.specification.Specification;
 import com.hault.codex_java.data.model.Location;
+import com.hault.codex_java.data.model.relations.LocationWithDetails;
 import com.hault.codex_java.data.repository.LocationRepository;
 import java.util.List;
 import javax.inject.Inject;
@@ -25,11 +31,11 @@ public class LocationViewModel extends ViewModel {
 
         locations = Transformations.switchMap(worldIdFilter, worldId ->
                 Transformations.switchMap(searchQuery, query -> {
-                    if (query == null || query.isEmpty()) {
-                        return repository.getLocationsForWorld(worldId);
-                    } else {
-                        return repository.searchLocationsForWorld(worldId, "%" + query + "%");
+                    Specification spec = new LocationByWorldSpecification(worldId);
+                    if (query != null && !query.isEmpty()) {
+                        spec = new AndSpecification(spec, new LocationByNameSpecification(query));
                     }
+                    return repository.searchLocations(spec);
                 })
         );
     }
@@ -48,6 +54,10 @@ public class LocationViewModel extends ViewModel {
 
     public LiveData<Location> getLocationById(int id) {
         return repository.getLocationById(id);
+    }
+
+    public LiveData<LocationWithDetails> getLocationWithDetails(int locationId) {
+        return repository.locationDao.getLocationWithDetails(locationId);
     }
 
     public void insert(Location location) {
