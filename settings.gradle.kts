@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Codex"
+rootProject.name = "Codex_JAVA"
 include(":app")
  
