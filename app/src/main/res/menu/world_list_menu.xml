@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?> <!-- world_list_menu.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_menu"
+        android:icon="@android:drawable/ic_menu_more"
+        android:title="Menu"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/submenu_sort"
+                android:title="Sort">
+                <menu>
+                    <item
+                        android:id="@+id/sort_asc"
+                        android:title="By Name (A-Z)" />
+                    <item
+                        android:id="@+id/sort_desc"
+                        android:title="By Name (Z-A)" />
+                </menu>
+            </item>
+            <!-- Placeholder for future settings -->
+            <item
+                android:id="@+id/action_settings"
+                android:title="Settings" />
+        </menu>
+    </item>
+</menu>

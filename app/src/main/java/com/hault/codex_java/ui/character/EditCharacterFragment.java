@@ -1,0 +1,206 @@
+package com.hault.codex_java.ui.character;
+
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import com.bumptech.glide.Glide;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.hault.codex_java.R;
+import com.hault.codex_java.data.model.Character;
+import com.hault.codex_java.data.model.Location;
+import com.hault.codex_java.ui.util.ColorPickerHelper;
+import com.hault.codex_java.viewmodel.CharacterViewModel;
+import com.hault.codex_java.viewmodel.LocationViewModel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
+public class EditCharacterFragment extends Fragment {
+
+    private static final String ARG_WORLD_ID = "world_id";
+    private static final String ARG_CHARACTER_ID = "character_id";
+
+    private CharacterViewModel characterViewModel;
+    private LocationViewModel locationViewModel;
+    private TextInputEditText editTextCharacterName;
+    private TextInputEditText editTextCharacterBackstory;
+    private Spinner spinnerHomeLocation;
+    private List<Location> locationList = new ArrayList<>();
+    private Character currentCharacter;
+    private int worldId;
+    private int characterId;
+    private TextInputEditText editTextTags;
+    private SwitchMaterial switchIsPinned;
+
+    private ImageView imageViewHeader;
+    private Button buttonSelectImage;
+    private Uri selectedImageUri;
+    private ColorPickerHelper colorPickerHelper;
+
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+
+
+    public static EditCharacterFragment newInstance(int worldId, int characterId) {
+        EditCharacterFragment fragment = new EditCharacterFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_WORLD_ID, worldId);
+        args.putInt(ARG_CHARACTER_ID, characterId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            worldId = getArguments().getInt(ARG_WORLD_ID);
+            characterId = getArguments().getInt(ARG_CHARACTER_ID);
+        }
+        characterViewModel = new ViewModelProvider(this).get(CharacterViewModel.class);
+        locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
+
+        pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+            if (uri != null) {
+                selectedImageUri = uri;
+                if (imageViewHeader != null) {
+                    Glide.with(this).load(uri).centerCrop().into(imageViewHeader);
+                }
+            }
+        });
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_add_edit_character, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        editTextCharacterName = view.findViewById(R.id.editTextCharacterName);
+        editTextCharacterBackstory = view.findViewById(R.id.editTextCharacterBackstory);
+        spinnerHomeLocation = view.findViewById(R.id.spinnerHomeLocation);
+        editTextTags = view.findViewById(R.id.editTextTags);
+        switchIsPinned = view.findViewById(R.id.switchIsPinned);
+        Button buttonSaveCharacter = view.findViewById(R.id.buttonSaveCharacter);
+        MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
+        imageViewHeader = view.findViewById(R.id.imageViewHeader);
+        buttonSelectImage = view.findViewById(R.id.buttonSelectImage);
+
+        toolbar.setTitle("Edit Character");
+        buttonSaveCharacter.setText("Save Changes");
+        toolbar.setNavigationOnClickListener(v -> getParentFragmentManager().popBackStack());
+
+        characterViewModel.getCharacter(characterId).observe(getViewLifecycleOwner(), character -> {
+            if (character != null) {
+                currentCharacter = character;
+                if (selectedImageUri == null && currentCharacter.imageUri != null) {
+                    selectedImageUri = Uri.parse(currentCharacter.imageUri);
+                }
+                populateUI(view);
+            }
+        });
+
+        buttonSelectImage.setOnClickListener(v -> pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .build()));
+
+        buttonSaveCharacter.setOnClickListener(v -> saveCharacter());
+    }
+
+    private void populateUI(View view) {
+        if (currentCharacter == null) return;
+        editTextCharacterName.setText(currentCharacter.name);
+        editTextCharacterBackstory.setText(currentCharacter.backstory);
+        editTextTags.setText(currentCharacter.tags);
+        switchIsPinned.setChecked(currentCharacter.isPinned);
+
+        if (selectedImageUri != null) {
+            Glide.with(this).load(selectedImageUri).centerCrop().into(imageViewHeader);
+        }
+
+        LinearLayout colorPickerContainer = view.findViewById(R.id.colorPickerContainer);
+        colorPickerHelper = new ColorPickerHelper(colorPickerContainer, currentCharacter.colorHex);
+
+        setupLocationSpinner();
+    }
+
+    private void setupLocationSpinner() {
+        locationViewModel.getLocationsForWorld(worldId).observe(getViewLifecycleOwner(), locations -> {
+            this.locationList = locations;
+            List<String> locationNames = new ArrayList<>();
+            locationNames.add("No Location");
+            locationNames.addAll(locations.stream().map(l -> l.name).collect(Collectors.toList()));
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, locationNames);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerHomeLocation.setAdapter(adapter);
+
+            // Set the correct selection
+            if (currentCharacter.homeLocationId != null) {
+                for (int i = 0; i < locationList.size(); i++) {
+                    if (locationList.get(i).id == currentCharacter.homeLocationId) {
+                        spinnerHomeLocation.setSelection(i + 1); // +1 because of "No Location"
+                        break;
+                    }
+                }
+            } else {
+                spinnerHomeLocation.setSelection(0);
+            }
+        });
+    }
+
+    private void saveCharacter() {
+        String name = editTextCharacterName.getText().toString().trim();
+        String backstory = editTextCharacterBackstory.getText().toString().trim();
+        String tags = editTextTags.getText().toString().trim();
+        boolean isPinned = switchIsPinned.isChecked();
+
+        if (name.isEmpty()) {
+            Toast.makeText(getContext(), "Character name cannot be empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Integer locationId = null;
+        int selectedPosition = spinnerHomeLocation.getSelectedItemPosition();
+        if (selectedPosition > 0) {
+            locationId = locationList.get(selectedPosition - 1).id;
+        }
+
+        currentCharacter.name = name;
+        currentCharacter.backstory = backstory;
+        currentCharacter.homeLocationId = locationId;
+        currentCharacter.tags = tags;
+        currentCharacter.isPinned = isPinned;
+        if (selectedImageUri != null) {
+            currentCharacter.imageUri = selectedImageUri.toString();
+        } else {
+            currentCharacter.imageUri = null;
+        }
+        currentCharacter.colorHex = colorPickerHelper.getSelectedColorHex();
+
+        characterViewModel.update(currentCharacter);
+        getParentFragmentManager().popBackStack();
+    }
+}

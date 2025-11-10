@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ColorPicker" />
+
+    <style name="ColorPicker.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="cardCornerRadius">24dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="ColorPicker.Check">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:src">@drawable/ic_check</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:layout_margin">12dp</item>
+    </style>
+</resources>

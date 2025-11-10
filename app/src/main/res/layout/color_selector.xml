@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginTop="16dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Theme Color"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:layout_marginBottom="8dp"/>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/colorPickerContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_default"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_red"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_pink"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_purple"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_deep_purple"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_indigo"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_blue"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_cyan"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_teal"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_green"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_light_green"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView style="@style/ColorPicker.Card" app:cardBackgroundColor="@color/picker_orange"><ImageView style="@style/ColorPicker.Check"/></androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </HorizontalScrollView>
+</LinearLayout>
